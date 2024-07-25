@@ -1,3 +1,6 @@
+# Complex wordlist generator
+# written in python by Vlad Stanoiu
+
 import itertools
 
 def apply_replacements(word):
