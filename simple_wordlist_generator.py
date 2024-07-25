@@ -1,3 +1,6 @@
+# Simple wordlist generator
+# written in python by Vlad Stanoiu
+
 import itertools
 
 def generate_wordlist(base_word, start_year, end_year, prepend_number, append_number, prepend_symbols, append_symbols, between_symbols):
