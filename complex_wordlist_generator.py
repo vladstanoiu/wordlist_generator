@@ -3,8 +3,11 @@
 
 import itertools
 
-def apply_replacements(word):
-    """Applies all possible replacements for specified characters."""
+def generate_wordlist(base_word, prepend_number, append_number, prepend_symbols, append_symbols, middle_symbols, start_year, end_year, complex_mode):
+    """Generates the wordlist according to the specifications."""
+    wordlist_set = set()  # Use a set to avoid duplicates
+
+    # Replacement rules for complex mode
     replacements = {
         'a': ['a', '@'],
         'A': ['A', '@'],
@@ -17,150 +20,95 @@ def apply_replacements(word):
         's': ['s', '$'],
         'S': ['S', '$']
     }
-    
-    def generate_combinations(word):
-        options = []
-        for char in word:
-            if char in replacements:
-                options.append(replacements[char])
-            else:
-                options.append([char])
-        return itertools.product(*options)
-    
-    return [''.join(comb) for comb in generate_combinations(word)]
 
-def generate_wordlist(base_word, start_year, end_year, prepend_number, append_number, prepend_symbols, append_symbols, between_symbols):
-    """Generates the wordlist according to the specifications."""
-    wordlist_set = set()  # Use a set to avoid duplicates
-    
-    # Permutations of uppercase and lowercase letters
-    permutations = itertools.product(*[c.lower() + c.upper() for c in base_word])
-    base_word_variations = [''.join(perm) for perm in permutations]
-    
-    # Apply character replacements
-    word_variations = []
-    for word in base_word_variations:
-        word_variations.extend(apply_replacements(word))
-    
-    # Add base word variations without numbers and symbols
-    wordlist_set.update(word_variations)
+    def get_complex_variations(word):
+        """Generate all complex variations based on the replacement rules and symbol combinations."""
+        # Generate permutations for uppercase and lowercase letters
+        permutations = itertools.product(*[c.lower() + c.upper() for c in word])
+        base_word_variations = [''.join(perm) for perm in permutations]
+        
+        # Add symbol replacements
+        variations = set()
+        for base in base_word_variations:
+            for replacement in itertools.product(*(replacements.get(char, [char]) for char in base)):
+                variations.add(''.join(replacement))
+        return variations
+
+    def get_base_word_variations(word, complex_mode):
+        """Generate variations of the base word based on the mode."""
+        if complex_mode:
+            return get_complex_variations(word)
+        else:
+            # Permutations of uppercase and lowercase letters
+            permutations = itertools.product(*[c.lower() + c.upper() for c in word])
+            return set(''.join(perm) for perm in permutations)
 
     # Symbols
     symbols = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')']
 
-    def add_combinations(word, year=None):
-        """Adds all possible combinations with symbols before, after, and between word and number/year."""
+    def add_combinations(word):
+        """Adds combinations based on prepend, append, and symbols settings."""
         combinations = set()
 
-        # Base word
-        combinations.add(word)
-        
-        # With prepend_number
+        # Apply prepend number
+        word_with_number = word
         if prepend_number:
-            combinations.add(f"{prepend_number}{word}")
-            if append_number:
-                combinations.add(f"{prepend_number}{word}{append_number}")
-            if year:
-                combinations.add(f"{prepend_number}{word}{year}")
-        
-        # With append_number
-        if append_number:
-            combinations.add(f"{word}{append_number}")
-            if year:
-                combinations.add(f"{word}{append_number}{year}")
+            word_with_number = f"{prepend_number}{word}"
 
-        if year:
-            combinations.add(f"{word}{year}")
-        
-        # Symbols and combinations
+        # Apply prepend symbols
         if prepend_symbols:
             for symbol in symbols:
-                # Symbol before word
-                combinations.add(f"{symbol}{word}")
-                if prepend_number:
-                    combinations.add(f"{symbol}{prepend_number}{word}")
-                if append_number:
-                    combinations.add(f"{symbol}{word}{append_number}")
-                if year:
-                    combinations.add(f"{symbol}{word}{year}")
-                
-                # Symbol before word with append_number
-                if append_number:
-                    combinations.add(f"{symbol}{word}{append_number}")
-                
-                # Symbol before word with year
-                if year:
-                    combinations.add(f"{symbol}{word}{year}")
-                
-                # Symbol after word
-                combinations.add(f"{word}{symbol}")
-                if prepend_number:
-                    combinations.add(f"{prepend_number}{word}{symbol}")
-                if append_number:
-                    combinations.add(f"{word}{append_number}{symbol}")
-                if year:
-                    combinations.add(f"{word}{year}{symbol}")
-                
-                # Symbol between word and append_number
-                if between_symbols and append_number:
-                    combinations.add(f"{word}{symbol}{append_number}")
-                
-                # Symbol between word and year
-                if between_symbols and year:
-                    combinations.add(f"{word}{symbol}{year}")
-                
-                # Symbol before and after word
-                combinations.add(f"{symbol}{word}{symbol}")
-                if prepend_number:
-                    combinations.add(f"{symbol}{prepend_number}{word}{symbol}")
-                if append_number:
-                    combinations.add(f"{symbol}{word}{append_number}{symbol}")
-                if year:
-                    combinations.add(f"{symbol}{word}{year}{symbol}")
-                
-                # Symbol before word and between word and append_number
-                if prepend_number and append_number and between_symbols:
-                    combinations.add(f"{symbol}{prepend_number}{word}{symbol}{append_number}")
-                
-                # Symbol before word and between word and year
-                if prepend_number and year and between_symbols:
-                    combinations.add(f"{symbol}{prepend_number}{word}{symbol}{year}")
+                combinations.add(f"{symbol}{word_with_number}")
 
-                # Symbol after word and between word and append_number
-                if append_number and between_symbols:
-                    combinations.add(f"{word}{symbol}{append_number}")
+        # Add the word with number to the combinations
+        combinations.add(word_with_number)
 
-                # Symbol after word and between word and year
-                if year and between_symbols:
-                    combinations.add(f"{word}{symbol}{year}")
+        # Add year ranges if specified
+        if start_year is not None and end_year is not None:
+            temp_combinations = set()
+            for year in range(start_year, end_year + 1):
+                temp_combinations.update({f"{comb}{year}" for comb in combinations})
+            combinations = temp_combinations
+        elif start_year is not None:
+            combinations = {f"{comb}{start_year}" for comb in combinations}
 
-        # Handling append_symbols and between_symbols together
-        if append_symbols and between_symbols:
-            for symbol in symbols:
-                combinations.add(f"{word}{symbol}{append_number}")
-                if prepend_number:
-                    combinations.add(f"{prepend_number}{word}{symbol}{append_number}")
-                if year:
-                    combinations.add(f"{word}{symbol}{year}")
-                if prepend_number and year:
-                    combinations.add(f"{prepend_number}{word}{symbol}{year}")
+        # Apply middle symbols only if start/end year is used
+        if middle_symbols and (start_year is not None or end_year is not None):
+            temp_combinations = set()
+            for comb in combinations:
+                for symbol in symbols:
+                    temp_combinations.add(f"{comb[:-4]}{symbol}{comb[-4:]}")  # Adding symbol between base word and year
+            combinations = temp_combinations
+
+        # Apply append symbols
+        if append_symbols:
+            temp_combinations = set()
+            for comb in combinations:
+                for symbol in symbols:
+                    temp_combinations.add(f"{comb}{symbol}")
+            combinations = temp_combinations
+
+        # Apply append number
+        if append_number:
+            combinations = {f"{comb}{append_number}" for comb in combinations}
 
         return combinations
 
-    # Adding variations with years, prepend_number, and append_number
-    if start_year is not None and end_year is not None:
-        for year in range(start_year, end_year + 1):
-            for word in word_variations:
-                wordlist_set.update(add_combinations(word, year))
-    else:
-        for word in word_variations:
-            wordlist_set.update(add_combinations(word))
+    # Generate wordlist
+    base_word_variations = get_base_word_variations(base_word, complex_mode)
+    
+    for word in base_word_variations:
+        combinations = add_combinations(word)
+        wordlist_set.update(combinations)
 
     return sorted(wordlist_set)
 
 def main():
     # Ask for user input
     base_word = input("Enter the base word (e.g., test): ").strip()
+    
+    mode = input("simple / complex: ").strip().lower() # Do you want the word to be simple (without symbols - only upper/lowercase) or complex (using all combinations Upper-Lowercase and symbols instead)
+    complex_mode = mode == 'complex'
     
     start_year_input = input("Enter the start year for the range (e.g., 2000) or press Enter to skip: ").strip()
     start_year = int(start_year_input) if start_year_input else None
@@ -175,10 +123,10 @@ def main():
     
     prepend_symbols = input("Should symbols be added at the beginning of the word (yes/no)? ").strip().lower() == 'yes'
     append_symbols = input("Should symbols be added at the end of the word (yes/no)? ").strip().lower() == 'yes'
-    between_symbols = input("Should symbols be added between the word and the number (yes/no)? ").strip().lower() == 'yes'
+    middle_symbols = input("Should symbols be added between the word and the number (yes/no)? ").strip().lower() == 'yes'
 
     # Generate the wordlist
-    wordlist = generate_wordlist(base_word, start_year, end_year, prepend_number if prepend_number else None, append_number if append_number else None, prepend_symbols, append_symbols, between_symbols)
+    wordlist = generate_wordlist(base_word, prepend_number if prepend_number else None, append_number if append_number else None, prepend_symbols, append_symbols, middle_symbols, start_year, end_year, complex_mode)
 
     # Write the result to a file
     with open('generated_wordlist.txt', 'w') as f:
