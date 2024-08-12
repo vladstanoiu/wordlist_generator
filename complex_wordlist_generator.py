@@ -51,62 +51,100 @@ def generate_wordlist(base_word, start_year, end_year, prepend_number, append_nu
     def add_combinations(word, year=None):
         """Adds all possible combinations with symbols before, after, and between word and number/year."""
         combinations = set()
-        
-        # Basic combinations
+
+        # Base word
         combinations.add(word)
         
+        # With prepend_number
         if prepend_number:
             combinations.add(f"{prepend_number}{word}")
-            
+            if append_number:
+                combinations.add(f"{prepend_number}{word}{append_number}")
+            if year:
+                combinations.add(f"{prepend_number}{word}{year}")
+        
+        # With append_number
         if append_number:
             combinations.add(f"{word}{append_number}")
-        
+            if year:
+                combinations.add(f"{word}{append_number}{year}")
+
         if year:
             combinations.add(f"{word}{year}")
         
-        # Prepend symbols
+        # Symbols and combinations
         if prepend_symbols:
             for symbol in symbols:
+                # Symbol before word
                 combinations.add(f"{symbol}{word}")
-                
                 if prepend_number:
                     combinations.add(f"{symbol}{prepend_number}{word}")
+                if append_number:
+                    combinations.add(f"{symbol}{word}{append_number}")
+                if year:
+                    combinations.add(f"{symbol}{word}{year}")
                 
+                # Symbol before word with append_number
                 if append_number:
                     combinations.add(f"{symbol}{word}{append_number}")
                 
+                # Symbol before word with year
                 if year:
                     combinations.add(f"{symbol}{word}{year}")
-        
-        # Append symbols
-        if append_symbols:
-            for symbol in symbols:
-                combinations.add(f"{word}{symbol}")
                 
+                # Symbol after word
+                combinations.add(f"{word}{symbol}")
                 if prepend_number:
                     combinations.add(f"{prepend_number}{word}{symbol}")
-                
                 if append_number:
                     combinations.add(f"{word}{append_number}{symbol}")
-                
                 if year:
                     combinations.add(f"{word}{year}{symbol}")
-        
-        # Between symbols
-        if between_symbols:
-            for symbol in symbols:
-                if append_number:
+                
+                # Symbol between word and append_number
+                if between_symbols and append_number:
                     combinations.add(f"{word}{symbol}{append_number}")
                 
-                if year:
+                # Symbol between word and year
+                if between_symbols and year:
                     combinations.add(f"{word}{symbol}{year}")
                 
-                if prepend_number and append_number:
-                    combinations.add(f"{prepend_number}{word}{symbol}{append_number}")
+                # Symbol before and after word
+                combinations.add(f"{symbol}{word}{symbol}")
+                if prepend_number:
+                    combinations.add(f"{symbol}{prepend_number}{word}{symbol}")
+                if append_number:
+                    combinations.add(f"{symbol}{word}{append_number}{symbol}")
+                if year:
+                    combinations.add(f"{symbol}{word}{year}{symbol}")
                 
+                # Symbol before word and between word and append_number
+                if prepend_number and append_number and between_symbols:
+                    combinations.add(f"{symbol}{prepend_number}{word}{symbol}{append_number}")
+                
+                # Symbol before word and between word and year
+                if prepend_number and year and between_symbols:
+                    combinations.add(f"{symbol}{prepend_number}{word}{symbol}{year}")
+
+                # Symbol after word and between word and append_number
+                if append_number and between_symbols:
+                    combinations.add(f"{word}{symbol}{append_number}")
+
+                # Symbol after word and between word and year
+                if year and between_symbols:
+                    combinations.add(f"{word}{symbol}{year}")
+
+        # Handling append_symbols and between_symbols together
+        if append_symbols and between_symbols:
+            for symbol in symbols:
+                combinations.add(f"{word}{symbol}{append_number}")
+                if prepend_number:
+                    combinations.add(f"{prepend_number}{word}{symbol}{append_number}")
+                if year:
+                    combinations.add(f"{word}{symbol}{year}")
                 if prepend_number and year:
                     combinations.add(f"{prepend_number}{word}{symbol}{year}")
-        
+
         return combinations
 
     # Adding variations with years, prepend_number, and append_number
@@ -150,4 +188,4 @@ def main():
     print(f"Wordlist generated and saved to 'generated_wordlist.txt'. Total words: {len(wordlist)}")
 
 if __name__ == "__main__":
-    main()  # Ensure that the function is called only once
+    main()
