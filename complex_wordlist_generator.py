@@ -37,72 +37,86 @@ def generate_wordlist(base_word, start_year, end_year, prepend_number, append_nu
     permutations = itertools.product(*[c.lower() + c.upper() for c in base_word])
     base_word_variations = [''.join(perm) for perm in permutations]
     
-    # Apply regex replacements
+    # Apply character replacements
     word_variations = []
     for word in base_word_variations:
         word_variations.extend(apply_replacements(word))
     
-    # Add simple words without numbers and symbols
+    # Add base word variations without numbers and symbols
     wordlist_set.update(word_variations)
 
     # Symbols
     symbols = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')']
 
-    def add_combinations(word, prepend_symbols, append_symbols, between_symbols, year):
-        """Adds all possible combinations with symbols before, after, and between word and number."""
-        combinations = [word]
+    def add_combinations(word, year=None):
+        """Adds all possible combinations with symbols before, after, and between word and number/year."""
+        combinations = set()
         
+        # Basic combinations
+        combinations.add(word)
+        
+        if prepend_number:
+            combinations.add(f"{prepend_number}{word}")
+            
+        if append_number:
+            combinations.add(f"{word}{append_number}")
+        
+        if year:
+            combinations.add(f"{word}{year}")
+        
+        # Prepend symbols
         if prepend_symbols:
             for symbol in symbols:
-                combinations.append(f"{symbol}{word}")
+                combinations.add(f"{symbol}{word}")
+                
+                if prepend_number:
+                    combinations.add(f"{symbol}{prepend_number}{word}")
+                
+                if append_number:
+                    combinations.add(f"{symbol}{word}{append_number}")
+                
+                if year:
+                    combinations.add(f"{symbol}{word}{year}")
         
-        if append_symbols and year is not None:
-            temp_combinations = []
-            for comb in combinations:
-                for symbol in symbols:
-                    temp_combinations.append(f"{comb}{year}{symbol}")
-            combinations = temp_combinations
-        elif year is not None:
-            combinations = [f"{comb}{year}" for comb in combinations]
+        # Append symbols
+        if append_symbols:
+            for symbol in symbols:
+                combinations.add(f"{word}{symbol}")
+                
+                if prepend_number:
+                    combinations.add(f"{prepend_number}{word}{symbol}")
+                
+                if append_number:
+                    combinations.add(f"{word}{append_number}{symbol}")
+                
+                if year:
+                    combinations.add(f"{word}{year}{symbol}")
         
-        if between_symbols and year is not None:
-            temp_combinations = []
-            for comb in combinations:
-                for symbol in symbols:
-                    temp_combinations.append(f"{comb[:-len(str(year))]}{symbol}{year}")
-            combinations.extend(temp_combinations)
+        # Between symbols
+        if between_symbols:
+            for symbol in symbols:
+                if append_number:
+                    combinations.add(f"{word}{symbol}{append_number}")
+                
+                if year:
+                    combinations.add(f"{word}{symbol}{year}")
+                
+                if prepend_number and append_number:
+                    combinations.add(f"{prepend_number}{word}{symbol}{append_number}")
+                
+                if prepend_number and year:
+                    combinations.add(f"{prepend_number}{word}{symbol}{year}")
         
         return combinations
 
-    # Adding years and symbol options
+    # Adding variations with years, prepend_number, and append_number
     if start_year is not None and end_year is not None:
         for year in range(start_year, end_year + 1):
             for word in word_variations:
-                # Version with number at the beginning and/or end
-                if prepend_number:
-                    wordlist_set.update(add_combinations(f"{prepend_number}{word}", prepend_symbols, append_symbols, between_symbols, year))
-                
-                if append_number:
-                    wordlist_set.update(add_combinations(f"{word}{append_number}", prepend_symbols, append_symbols, between_symbols, year))
-                
-                if between_symbols:
-                    wordlist_set.update(add_combinations(f"{word}", prepend_symbols, append_symbols, between_symbols, year))
-                
-                # Word with year and without number
-                wordlist_set.update(add_combinations(word, prepend_symbols, append_symbols, between_symbols, year))
-
-    elif start_year is not None:
-        # If the year range is not specified, add the word without numbers
-        for word in word_variations:
-            if prepend_number:
-                wordlist_set.update(add_combinations(f"{prepend_number}{word}", prepend_symbols, append_symbols, between_symbols, None))
-            if append_number:
-                wordlist_set.update(add_combinations(f"{word}{append_number}", prepend_symbols, append_symbols, between_symbols, None))
-            wordlist_set.update(add_combinations(word, prepend_symbols, append_symbols, between_symbols, None))
+                wordlist_set.update(add_combinations(word, year))
     else:
-        # If no years are specified and no numbers are added, add the base word
         for word in word_variations:
-            wordlist_set.update(add_combinations(word, prepend_symbols, append_symbols, between_symbols, None))
+            wordlist_set.update(add_combinations(word))
 
     return sorted(wordlist_set)
 
@@ -136,4 +150,4 @@ def main():
     print(f"Wordlist generated and saved to 'generated_wordlist.txt'. Total words: {len(wordlist)}")
 
 if __name__ == "__main__":
-    main()
+    main()  # Ensure that the function is called only once
