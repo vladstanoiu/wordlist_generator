@@ -1,11 +1,8 @@
-# Two python scripts
+# one complex python script
 #
 # Complex Wordlist generator
-# The script uses simple words and replaces certain letters with symbols.
-#
-# Simple Wordlist generator
-# The script uses simple words using only upper and lower case letters.
-#
+# Complex mode for characters subtitutions in base word (includes also simple mode)
+# Simple mode for all combinations with upper and lowercase
 # Usage:
 # python3 wordlist_generator.py
 
