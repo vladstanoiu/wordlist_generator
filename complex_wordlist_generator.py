@@ -9,8 +9,8 @@ def generate_wordlist(base_word, prepend_number, append_number, prepend_symbols,
 
     # Replacement rules for complex mode
     replacements = {
-        'a': ['a', '@','4'],
-        'A': ['A', '@','4'],
+        'a': ['a', '@','4','!'],
+        'A': ['A', '@','4','!'],
         'e': ['e', '3'],
         'E': ['E', '3'],
         'i': ['i', '1', '!'],
@@ -48,7 +48,7 @@ def generate_wordlist(base_word, prepend_number, append_number, prepend_symbols,
             return set(''.join(perm) for perm in permutations)
 
     # Symbols
-    symbols = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')']
+    symbols = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', ';', '_','-', '=', '.', '+', '~', '`']
 
     def add_combinations(word):
         """Adds combinations based on prepend, append, and symbols settings."""
