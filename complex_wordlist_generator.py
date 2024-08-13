@@ -9,18 +9,20 @@ def generate_wordlist(base_word, prepend_number, append_number, prepend_symbols,
 
     # Replacement rules for complex mode
     replacements = {
-        'a': ['a', '@'],
-        'A': ['A', '@'],
+        'a': ['a', '@','4'],
+        'A': ['A', '@','4'],
         'e': ['e', '3'],
         'E': ['E', '3'],
         'i': ['i', '1', '!'],
         'I': ['I', '1', '!'],
         'l': ['l', '1', '!'],
         'L': ['L', '1', '!'],
+        't': ['t', '7'],
+        'T': ['T', '7'],
         'o': ['o', '0'],
         'O': ['O', '0'],
-        's': ['s', '$'],
-        'S': ['S', '$']
+        's': ['s', '$', '5'],
+        'S': ['S', '$', '5']
     }
 
     def get_complex_variations(word):
