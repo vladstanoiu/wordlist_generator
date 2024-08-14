@@ -61,11 +61,14 @@ def generate_wordlist(base_word, prepend_number, append_number, prepend_symbols,
 
         # Apply prepend symbols
         if prepend_symbols:
+            temp_combinations = set()
             for symbol in symbols:
-                combinations.add(f"{symbol}{word_with_number}")
+                temp_combinations.add(f"{symbol}{word_with_number}")
+            combinations.update(temp_combinations)
 
-        # Add the word with number to the combinations
-        combinations.add(word_with_number)
+        # Add the word with number to the combinations if no prepend symbols were added
+        if not prepend_symbols:
+            combinations.add(word_with_number)
 
         # Add year ranges if specified
         if start_year is not None and end_year is not None:
@@ -81,10 +84,11 @@ def generate_wordlist(base_word, prepend_number, append_number, prepend_symbols,
             temp_combinations = set()
             for comb in combinations:
                 for symbol in symbols:
-                    temp_combinations.add(f"{comb[:-4]}{symbol}{comb[-4:]}")  # Adding symbol between base word and year
+                    # Add symbol between base word and year
+                    temp_combinations.add(f"{comb[:-len(str(start_year))]}{symbol}{comb[-len(str(start_year)):]}")
             combinations = temp_combinations
 
-        # Apply append symbols
+        # Apply append symbols after the year
         if append_symbols:
             temp_combinations = set()
             for comb in combinations:
@@ -141,3 +145,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
