@@ -1,18 +1,21 @@
-# Cerem primul număr de la utilizator
+# Romanian Phone Number generator - 10 numbers
+
+# input first number
 first_number = input("Enter a number: ")  # Se ia ca string
 
-# Verificăm dacă primul număr are 10 cifre
+# check if  the first number has 10 chars
 if len(first_number) != 10:
     print("First number needs to have 10 chars")
 else:
-    # Ultimul număr este cel mai mare posibil cu același număr de cifre (10 cifre)
+    # last number
     last_number = '0799999999'
 
-    # Deschidem fișierul numbers.txt în modul de scriere
+    # open file
     with open("numbers.txt", "w") as file:
-        # Generăm numerele de la primul până la ultimul număr posibil
+        # write file
         for number in range(int(first_number), int(last_number) + 1):
-            # Scriem fiecare număr pe o linie nouă în fișier
-            file.write(f"{number:010}\n")  # Formatăm pentru a avea 10 cifre
+            # write every number in a new line
+            file.write(f"{number:010}\n")  # Format to be 10 chars
 
     print("Wordlist generated in  numbers.txt")
+
