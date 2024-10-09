@@ -2,7 +2,7 @@
 
 '''
 NameMash by superkojiman
-
+./namemash.py names.txt > possible.txt
 Generate a list of possible usernames from a person's first and last name. 
 
 https://blog.techorganic.com/2011/07/17/creating-a-user-name-list-for-brute-force-attacks/
