@@ -1,7 +1,7 @@
 # Romanian Phone Number generator - 10 numbers
 
 # input first number
-first_number = input("Enter a number: ")  # Se ia ca string
+first_number = input("Enter a number: ")  # take a string
 
 # check if  the first number has 10 chars
 if len(first_number) != 10:
