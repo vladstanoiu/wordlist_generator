@@ -11,7 +11,7 @@ else:
     last_number = '99999999'
 
     # open file
-    with open("numbers.txt", "w") as file:
+    with open("birthdays.txt", "w") as file:
         # write file
         for number in range(int(first_number), int(last_number) + 1):
             # write every number in a new line
